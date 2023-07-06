@@ -44,3 +44,22 @@ function loadWorks() {
 
 // Appel de la fonction loadWorks au chargement de la page
 loadWorks();
+
+
+// Fonction pour ajouter les boutons de filtrage par catégorie
+function addbtn(categories) {
+    const filterContainer = document.getElementById("filter");
+    categories.forEach(category => {
+        const button = document.createElement('button');
+        button.textContent = category.name;
+        button.setAttribute("data-category-id", category.id);
+        filterContainer.appendChild(button);
+
+        button.addEventListener("click", (event) => {
+            const categoryId = parseInt(event.target.getAttribute("data-category-id"));
+            const filteredProjects = categoryId === 0 ? allWorks : allWorks.filter(project => project.categoryId === categoryId);
+            works(filteredProjects);
+        });
+    });
+}
+
