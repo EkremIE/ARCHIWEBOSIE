@@ -63,3 +63,309 @@ function addbtn(categories) {
     });
 }
 
+// Modale
+
+// Déclaration des variables pour la modale
+let modal = null;
+const focusableSelector = "button, a, input, textarea";
+let focusables = [];
+let previouslyFocusedElement = null;
+
+// Fonction pour ouvrir la modale
+const openModal = function (e) {
+    e.preventDefault();
+    modal = document.querySelector(e.target.getAttribute('href'));
+    focusables = Array.from(modal.querySelectorAll(focusableSelector));
+    previouslyFocusedElement = document.querySelector(':focus');
+    modal.style.display = null;
+    focusables[0].focus();
+    modal.removeAttribute('aria-hidden');
+    modal.setAttribute('aria-modal', true);
+    modal.addEventListener('click', closeModal);
+    // Créer le bouton de fermeture avec le logo de FontAwesome
+    const closeIcon = document.createElement("i");
+    closeIcon.classList.add("fas", "fa-times"); // Ajoutez les classes FontAwesome pour l'icône de fermeture
+
+    const closeButton = document.createElement("button");
+    closeButton.classList.add("js-modal-close");
+    closeButton.appendChild(closeIcon);
+    closeButton.addEventListener('click', closeModal);
+
+    modal.querySelector('.js-modal-close').remove(); // Supprimer l'ancien bouton de fermeture
+    modal.querySelector('.modal-wrapper').prepend(closeButton); // Ajouter le bouton de fermeture au début de la modal
+
+    modal.querySelector('.js-modal-stop').addEventListener('click', stopPropagation);
+    displayWorksInModal(allWorks);
+};
+
+// Fonction pour ouvrir la deuxième modale
+const openSecondModal = function (e) {
+    modal = document.querySelector('#modal2');
+    focusables = Array.from(modal.querySelectorAll(focusableSelector));
+    previouslyFocusedElement = document.querySelector(':focus');
+    modal.style.display = null;
+    focusables[0].focus();
+    modal.removeAttribute('aria-hidden');
+    modal.setAttribute('aria-modal', true);
+    modal.addEventListener('click', closeModal);
+
+    const form = modal.querySelector('#add-work-form');
+    form.addEventListener('submit', addWork);
+
+
+    const backIcon = document.createElement("i");
+    backIcon.classList.add("fas", "fa-arrow-left"); // Ajoutez les classes FontAwesome pour l'icône de fermeture
+
+    const backButton = document.createElement("button");
+    backButton.classList.add("js-modal-back");
+    backButton.appendChild(backIcon);
+    backButton.addEventListener("click", openModal);
+
+    // Créer le bouton de fermeture avec le logo de FontAwesome
+    const closeIcon = document.createElement("i");
+    closeIcon.classList.add("fas", "fa-times"); // Ajoutez les classes FontAwesome pour l'icône de fermeture
+
+    const closeButton = document.createElement("button");
+    closeButton.classList.add("js-modal-close");
+    closeButton.appendChild(closeIcon);
+    closeButton.addEventListener('click', closeModal);
+
+    modal.querySelector('.js-modal-close').remove(); // Supprimer l'ancien bouton de fermeture
+    modal.querySelector('.modal-wrapper').prepend(closeButton); // Ajouter le bouton de fermeture au début de la modal
+    modal.querySelector('.modal-wrapper').prepend(backButton); // Ajouter le bouton de retour au début de la modal
+    modal.querySelector('.js-modal-stop').addEventListener('click', stopPropagation);
+};
+
+// Fonction pour fermer la modale
+const closeModal = function (e) {
+    if (modal === null) return;
+    if (previouslyFocusedElement !== null) previouslyFocusedElement.focus();
+    e.preventDefault();
+
+    if (modal.id === "modal2") {
+        modal.style.display = "none";
+        modal.setAttribute('aria-hidden', 'true');
+        modal.removeAttribute('aria-modal');
+        modal.removeEventListener('click', closeModal);
+        modal.querySelector('.js-modal-close').removeEventListener('click', closeModal);
+        modal.querySelector('.js-modal-stop').removeEventListener('click', stopPropagation);
+        modal = document.querySelector('#modal1');
+    } else {
+        modal.style.display = "none";
+        modal.setAttribute('aria-hidden', 'true');
+        modal.removeAttribute('aria-modal');
+        modal.removeEventListener('click', closeModal);
+        modal.querySelector('.js-modal-close').removeEventListener('click', closeModal);
+        modal.querySelector('.js-modal-stop').removeEventListener('click', stopPropagation);
+        modal = null;
+    }
+};
+
+// Fonction pour arrêter la propagation des événements dans la modale
+const stopPropagation = function (e) {
+    e.stopPropagation();
+};
+
+// Fonction pour gérer la navigation au clavier dans la modale
+const focusInModal = function (e) {
+    e.preventDefault();
+    let index = focusables.findIndex(f => f === modal.querySelector(':focus'));
+    if (e.shiftKey === true) {
+        index--;
+    } else {
+        index++;
+    }
+    if (index >= focusables.length) {
+        index = 0;
+    }
+    if (index < 0) {
+        index = focusables.length - 1;
+    }
+    focusables[index].focus();
+};
+
+// Ajout des écouteurs d'événements pour ouvrir la modale au clic sur les boutons "modifier"
+document.querySelectorAll('.js-modal').forEach(a => {
+    a.addEventListener('click', openModal);
+});
+
+// Ajout de l'écouteur d'événement pour le bouton "Ajouter une photo"
+document.querySelector('.js-modal-add-photo').addEventListener('click', openSecondModal);
+
+// Ajout de l'écouteur d'événement pour la touche "Escape" et la navigation au clavier dans la modale
+window.addEventListener('keydown', function (e) {
+    if (e.key === "Escape" || e.key === "Esc") {
+        closeModal(e);
+    }
+    if (e.key === 'Tab' && modal !== null) {
+        focusInModal(e);
+    }
+});
+
+// Fonction pour afficher les travaux dans la modale
+function displayWorksInModal(works) {
+    const modalWorkContainer = document.getElementById("modal-gallery");
+    modalWorkContainer.innerHTML = '';
+
+    works.forEach(work => {
+        const figure = document.createElement("figure");
+        figure.classList.add("modal-work");
+        const img = document.createElement("img");
+        img.classList.add("modal-image");
+        img.setAttribute("src", work.imageUrl);
+
+        const caption = document.createElement("figcaption");
+        caption.innerText = "Éditer";
+        caption.classList.add("modal-caption");
+
+        const deleteIcon = document.createElement("i");
+        deleteIcon.classList.add("fas", "fa-trash"); // Utilisez les classes FontAwesome pour l'icône de suppression
+
+        const deleteButton = document.createElement("button");
+        deleteButton.classList.add("js-modal-delete");
+        deleteButton.appendChild(deleteIcon);
+
+        // Ajoutez le gestionnaire d'événements pour la suppression du travail
+        deleteButton.addEventListener("click", (event) => {
+            event.stopPropagation(); // Empêche la propagation de l'événement click au parent
+            const workId = work.id;
+            deleteWork(workId);
+        });
+
+        figure.appendChild(img);
+        figure.appendChild(caption);
+        figure.appendChild(deleteButton);
+        modalWorkContainer.appendChild(figure);
+    });
+}
+
+
+function deleteWork(workId) {
+    fetch(`http://localhost:5678/api/works/${workId}`, {
+        method: 'DELETE',
+        headers: {
+            authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+    })
+        .then(response => {
+            if (response.ok) {
+                // Le travail a été supprimé avec succès
+                loadWorks(); // Recharger les travaux pour mettre à jour la galerie
+            } else {
+                console.log('Erreur lors de la suppression du travail.');
+            }
+        })
+        .catch(error => console.log('error', error));
+}
+
+// Modale
+
+// Récupération du token depuis le stockage local
+const token = localStorage.getItem('token');
+
+
+
+const loginButton = document.getElementById('login-button');
+const logoutButton = document.getElementById('logout-button');
+const editButton = document.getElementById('edit-button');
+const editButton2 = document.getElementById('edit-button2');
+const adminHeader = document.getElementById('admin-header');
+const filterBar = document.getElementById('filter');
+const logoEdit = document.getElementById('edit-logo1');
+const logoEdit2 = document.getElementById('edit-logo2');
+
+// Fonction de déconnexion
+const logout = function () {
+    // Supprimer le token de stockage local
+    localStorage.removeItem('token');
+    // Rediriger vers la page de connexion
+    window.location.href = 'index.html';
+};
+
+// Vérification de la présence du token pour déterminer si l'utilisateur est connecté ou non
+if (token) {
+    // Utilisateur connecté : afficher le bouton de déconnexion et masquer le bouton de connexion
+    // Afficher le bouton d'édition, l'en-tête d'admin et masquer la barre de filtrage
+    loginButton.style.display = 'none';
+    logoutButton.style.display = 'block';
+    editButton.style.display = 'block';
+    editButton2.style.display = 'block';
+    adminHeader.style.display = 'flex';
+    filterBar.style.display = 'none';
+    logoEdit.style.display = 'block';
+    logoEdit2.style.display = 'block';
+
+    // Ajouter l'événement de clic au bouton de déconnexion
+    logoutButton.addEventListener('click', logout);
+} else {
+    // Utilisateur déconnecté : afficher le bouton de connexion et masquer le bouton de déconnexion
+    // Masquer le bouton d'édition, l'en-tête d'admin et afficher la barre de filtrage
+    loginButton.style.display = 'block';
+    logoutButton.style.display = 'none';
+    editButton.style.display = 'none';
+    editButton2.style.display = 'none';
+    adminHeader.style.display = 'none';
+    filterBar.style.display = 'flex';
+    logoEdit.style.display = 'none';
+    logoEdit2.style.display = 'none';
+}
+
+// Appel de la fonction addCategoriesToDropdown pour afficher les catégories dans le menu déroulant
+fetch("http://localhost:5678/api/categories", requestOptions)
+    .then(response => response.json())
+    .then(result => {
+        const categories = [
+            { id: 0, name: "Tous" },
+            ...result
+        ];
+        addCategoriesToDropdown(categories);
+
+        // Appel de la fonction addbtn pour afficher les boutons de filtrage
+        addbtn(categories);
+
+        // Appel de la fonction openSecondModal après avoir ajouté les catégories
+        document.querySelector('.js-modal-add-photo').addEventListener('click', openSecondModal);
+    })
+    .catch(error => console.log('error', error));
+
+
+
+function addWork(e) {
+    e.preventDefault();
+
+    // Récupérer les valeurs des champs du formulaire
+    const title = document.getElementById('work-title').value;
+    const category = document.getElementById('work-category').value;
+    const image = document.getElementById('work-image').files[0];
+
+    // Vérifier que tous les champs requis sont remplis
+    if (!title || !category || !image) {
+        console.log('Veuillez remplir tous les champs requis.'); // prompt ? ou affichage message d'erreur / alerte ?
+        return;
+    }
+
+    // Créer un objet FormData pour envoyer les données
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('category', category);
+    formData.append('image', image);
+
+    // Effectuer une requête POST pour ajouter le travail
+    fetch('http://localhost:5678/api/works', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+    })
+        .then(response => response.json())
+        .then(result => {
+            // Le travail a été ajouté avec succès
+            closeModal(e); // Fermer la modale
+            loadWorks(); // Recharger les travaux pour afficher le nouveau travail dans la galerie
+        })
+        .catch(error => console.log('error', error));
+}
+
+
+
