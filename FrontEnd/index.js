@@ -8,7 +8,6 @@ const requestOptions = {
     redirect: 'follow'
 };
 
-
 let allWorks = [];
 
 // Fonction pour afficher les projets
@@ -45,7 +44,6 @@ function loadWorks() {
 // Appel de la fonction loadWorks au chargement de la page
 loadWorks();
 
-
 // Fonction pour ajouter les boutons de filtrage par catégorie
 function addbtn(categories) {
     const filterContainer = document.getElementById("filter");
@@ -62,6 +60,79 @@ function addbtn(categories) {
         });
     });
 }
+
+// Fonction pour ajouter les catégories au menu déroulant
+function addCategoriesToDropdown(categories) {
+    const dropdown = document.getElementById("work-category");
+    dropdown.innerHTML = '';
+
+    categories.forEach(category => {
+        const option = document.createElement('option');
+        option.value = category.id;
+        option.textContent = category.name;
+        dropdown.appendChild(option);
+    });
+}
+// Appel de la fonction addCategoriesToDropdown pour afficher les catégories dans le menu déroulant
+fetch("http://localhost:5678/api/categories", requestOptions)
+    .then(response => response.json())
+    .then(result => {
+        const categories = [
+            { id: 0, name: "Tous" },
+            ...result
+        ];
+        addCategoriesToDropdown(categories);
+
+        // Appel de la fonction addbtn pour afficher les boutons de filtrage
+        addbtn(categories);
+
+        // Appel de la fonction openSecondModal après avoir ajouté les catégories
+        document.querySelector('.js-modal-add-photo').addEventListener('click', openSecondModal);
+    })
+    .catch(error => console.log('error', error));
+
+
+
+function addWork(e) {
+    e.preventDefault();
+
+    // Récupérer les valeurs des champs du formulaire
+    const title = document.getElementById('work-title').value;
+    const category = document.getElementById('work-category').value;
+    const image = document.getElementById('work-image').files[0];
+
+    // Vérifier que tous les champs requis sont remplis
+    if (!title || !category || !image) {
+        console.log('Veuillez remplir tous les champs requis.'); // prompt ? ou affichage message d'erreur / alerte ?
+        return;
+    }
+
+    // Créer un objet FormData pour envoyer les données
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('category', category);
+    formData.append('image', image);
+
+    // Effectuer une requête POST pour ajouter le travail
+    fetch('http://localhost:5678/api/works', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+    })
+        .then(response => response.json())
+        .then(result => {
+            // Le travail a été ajouté avec succès
+            closeModal(e); // Fermer la modale
+            loadWorks(); // Recharger les travaux pour afficher le nouveau travail dans la galerie
+        })
+        .catch(error => console.log('error', error));
+}
+
+
+
+
 
 // Modale
 
@@ -260,6 +331,7 @@ function deleteWork(workId) {
 
 // Modale
 
+
 // Récupération du token depuis le stockage local
 const token = localStorage.getItem('token');
 
@@ -310,62 +382,6 @@ if (token) {
     logoEdit2.style.display = 'none';
 }
 
-// Appel de la fonction addCategoriesToDropdown pour afficher les catégories dans le menu déroulant
-fetch("http://localhost:5678/api/categories", requestOptions)
-    .then(response => response.json())
-    .then(result => {
-        const categories = [
-            { id: 0, name: "Tous" },
-            ...result
-        ];
-        addCategoriesToDropdown(categories);
-
-        // Appel de la fonction addbtn pour afficher les boutons de filtrage
-        addbtn(categories);
-
-        // Appel de la fonction openSecondModal après avoir ajouté les catégories
-        document.querySelector('.js-modal-add-photo').addEventListener('click', openSecondModal);
-    })
-    .catch(error => console.log('error', error));
-
-
-
-function addWork(e) {
-    e.preventDefault();
-
-    // Récupérer les valeurs des champs du formulaire
-    const title = document.getElementById('work-title').value;
-    const category = document.getElementById('work-category').value;
-    const image = document.getElementById('work-image').files[0];
-
-    // Vérifier que tous les champs requis sont remplis
-    if (!title || !category || !image) {
-        console.log('Veuillez remplir tous les champs requis.'); // prompt ? ou affichage message d'erreur / alerte ?
-        return;
-    }
-
-    // Créer un objet FormData pour envoyer les données
-    const formData = new FormData();
-    formData.append('title', title);
-    formData.append('category', category);
-    formData.append('image', image);
-
-    // Effectuer une requête POST pour ajouter le travail
-    fetch('http://localhost:5678/api/works', {
-        method: 'POST',
-        body: formData,
-        headers: {
-            authorization: `Bearer ${localStorage.getItem('token')}`
-        }
-    })
-        .then(response => response.json())
-        .then(result => {
-            // Le travail a été ajouté avec succès
-            closeModal(e); // Fermer la modale
-            loadWorks(); // Recharger les travaux pour afficher le nouveau travail dans la galerie
-        })
-        .catch(error => console.log('error', error));
-}
 
 
 
