@@ -93,42 +93,7 @@ fetch("http://localhost:5678/api/categories", requestOptions)
 
 
 
-function addWork(e) {
-    e.preventDefault();
 
-    // Récupérer les valeurs des champs du formulaire
-    const title = document.getElementById('work-title').value;
-    const category = document.getElementById('work-category').value;
-    const image = document.getElementById('work-image').files[0];
-
-    // Vérifier que tous les champs requis sont remplis
-    if (!title || !category || !image) {
-        console.log('Veuillez remplir tous les champs requis.'); // prompt ? ou affichage message d'erreur / alerte ?
-        return;
-    }
-
-    // Créer un objet FormData pour envoyer les données
-    const formData = new FormData();
-    formData.append('title', title);
-    formData.append('category', category);
-    formData.append('image', image);
-
-    // Effectuer une requête POST pour ajouter le travail
-    fetch('http://localhost:5678/api/works', {
-        method: 'POST',
-        body: formData,
-        headers: {
-            authorization: `Bearer ${localStorage.getItem('token')}`
-        }
-    })
-        .then(response => response.json())
-        .then(result => {
-            // Le travail a été ajouté avec succès
-            closeModal(e); // Fermer la modale
-            loadWorks(); // Recharger les travaux pour afficher le nouveau travail dans la galerie
-        })
-        .catch(error => console.log('error', error));
-}
 
 
 
@@ -325,6 +290,44 @@ function deleteWork(workId) {
             } else {
                 console.log('Erreur lors de la suppression du travail.');
             }
+        })
+        .catch(error => console.log('error', error));
+}
+
+
+function addWork(e) {
+    e.preventDefault();
+
+    // Récupérer les valeurs des champs du formulaire
+    const title = document.getElementById('work-title').value;
+    const category = document.getElementById('work-category').value;
+    const image = document.getElementById('work-image').files[0];
+
+    // Vérifier que tous les champs requis sont remplis
+    if (!title || !category || !image) {
+        console.log('Veuillez remplir tous les champs requis.'); // prompt ? ou affichage message d'erreur / alerte ?
+        return;
+    }
+
+    // Créer un objet FormData pour envoyer les données
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('category', category);
+    formData.append('image', image);
+
+    // Effectuer une requête POST pour ajouter le travail
+    fetch('http://localhost:5678/api/works', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+    })
+        .then(response => response.json())
+        .then(result => {
+            // Le travail a été ajouté avec succès
+            closeModal(e); // Fermer la modale
+            loadWorks(); // Recharger les travaux pour afficher le nouveau travail dans la galerie
         })
         .catch(error => console.log('error', error));
 }
