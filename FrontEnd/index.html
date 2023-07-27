@@ -112,17 +112,19 @@
 
 			<input type="file" id="work-image" name="work-image" accept="image/*" required>
 
-			<form id="add-work-form">
-				<label for="work-title">Titre</label>
-				<input type="text" id="work-title" name="work-title" required>
-				<div>
-					<label for="work-category">Catégorie</label>
-					<select id="work-category" name="work-category" required>
-						<option value="" disabled selected>Sélectionner une catégorie</option>
-						<!-- Ajoutez les options de catégorie dynamiquement -->
-					</select>
-				</div>
-				<div class="line2"></div>
+			<form id="add-work-form" enctype="multipart/form-data">
+				<label for="work-title">Titre :</label>
+				<input type="text" id="work-title" required>
+
+				<label for="work-category">Catégorie :</label>
+				<select id="work-category" required></select>
+
+
+
+
+
+
+			<div class="line2"></div>
 				<button id="submit-button" type="submit">Valider</button>
 			</form>
 		</div>

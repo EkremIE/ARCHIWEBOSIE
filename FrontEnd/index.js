@@ -66,13 +66,24 @@ function addCategoriesToDropdown(categories) {
     const dropdown = document.getElementById("work-category");
     dropdown.innerHTML = '';
 
-    categories.forEach(category => {
+    // Ajouter le texte "Veuillez sélectionner une catégorie" avec une valeur spéciale (-1)
+    const defaultOption = document.createElement('option');
+    defaultOption.value = -1;
+    defaultOption.textContent = "Veuillez sélectionner une catégorie";
+    dropdown.appendChild(defaultOption);
+
+    // Filtrer les catégories pour exclure l'option "Tous" (si elle existe)
+    const filteredCategories = categories.filter(category => category.name !== "Tous");
+
+    // Ajouter les autres catégories
+    filteredCategories.forEach(category => {
         const option = document.createElement('option');
         option.value = category.id;
         option.textContent = category.name;
         dropdown.appendChild(option);
     });
 }
+
 // Appel de la fonction addCategoriesToDropdown pour afficher les catégories dans le menu déroulant
 fetch("http://localhost:5678/api/categories", requestOptions)
     .then(response => response.json())
@@ -106,9 +117,9 @@ let modal = null;
 const focusableSelector = "button, a, input, textarea";
 let focusables = [];
 let previouslyFocusedElement = null;
-
-// Variable pour conserver la référence à la première modal
 let firstModal = document.querySelector('#modal1');
+let secondModal = document.querySelector('#modal2');
+
 
 // Fonction pour ouvrir la modale
 const openModal = function (e) {
@@ -148,6 +159,9 @@ const openSecondModal = function (e) {
     modal = document.querySelector('#modal2');
     if (!modal) return; // Vérifier si la modal a été trouvée
 
+    const dropdown = document.getElementById("work-category");
+    dropdown.value = -1;
+
     focusables = Array.from(modal.querySelectorAll(focusableSelector));
     previouslyFocusedElement = document.querySelector(':focus');
     modal.style.display = null;
@@ -160,9 +174,9 @@ const openSecondModal = function (e) {
     form.addEventListener('submit', addWork);
 
     // Créer le bouton de retour avec le logo de FontAwesome
-    if (!backButtonAdded) { // Vérifier si le bouton de retour n'a pas déjà été ajouté
+    if (!backButtonAdded) {
         const backIcon = document.createElement("i");
-        backIcon.classList.add("fas", "fa-arrow-left"); // Ajoutez les classes FontAwesome pour l'icône de retour
+        backIcon.classList.add("fas", "fa-arrow-left");
 
         const backButton = document.createElement("button");
         backButton.classList.add("js-modal-back");
@@ -183,7 +197,7 @@ const openSecondModal = function (e) {
 
     // Créer le bouton de fermeture avec le logo de FontAwesome
     const closeIcon = document.createElement("i");
-    closeIcon.classList.add("fas", "fa-times"); // Ajoutez les classes FontAwesome pour l'icône de fermeture
+    closeIcon.classList.add("fas", "fa-times");
 
     const closeButton = document.createElement("button");
     closeButton.classList.add("js-modal-close");
@@ -293,7 +307,7 @@ function displayWorksInModal(works) {
 
         // Ajoutez le gestionnaire d'événements pour la suppression du travail
         deleteButton.addEventListener("click", (event) => {
-            event.stopPropagation(); // Empêche la propagation de l'événement click au parent
+            event.stopPropagation();
             const workId = work.id;
             deleteWork(workId);
         });
@@ -334,9 +348,14 @@ function addWork(e) {
     const category = document.getElementById('work-category').value;
     const image = document.getElementById('work-image').files[0];
 
-    // Vérifier que tous les champs requis sont remplis
+
     if (!title || !category || !image) {
-        console.log('Veuillez remplir tous les champs requis.'); // prompt ? ou affichage message d'erreur / alerte ?
+        alert('Veuillez remplir tous les champs requis.'); // Afficher une alerte en cas de champ vide
+        return;
+    }
+
+    if (category === '-1') {
+        alert('Veuillez sélectionner une catégorie.');
         return;
     }
 

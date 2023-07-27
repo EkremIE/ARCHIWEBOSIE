@@ -215,7 +215,7 @@ footer nav ul {
 
 #filter button {
 	box-sizing: border-box;
-	width: 220px;
+	width: 198px;
 	height: 37px;
 	background: transparent;
 	border: 1px solid #1D6154;
@@ -678,6 +678,10 @@ input[type="file"] {
 	text-decoration-line: underline;
 	color: #3D3D3D;
 	margin-top: 20px;
+}
+
+option[disabled] {
+	color: #999; /* Remplacez cette couleur par celle que vous souhaitez */
 }
 
 
