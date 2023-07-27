@@ -107,9 +107,16 @@ const focusableSelector = "button, a, input, textarea";
 let focusables = [];
 let previouslyFocusedElement = null;
 
+// Variable pour conserver la référence à la première modal
+let firstModal = document.querySelector('#modal1');
+
 // Fonction pour ouvrir la modale
 const openModal = function (e) {
     e.preventDefault();
+    const modalId = e.target.getAttribute('href');
+    modal = document.querySelector(modalId);
+    if (!modal) return; //
+
     modal = document.querySelector(e.target.getAttribute('href'));
     focusables = Array.from(modal.querySelectorAll(focusableSelector));
     previouslyFocusedElement = document.querySelector(':focus');
@@ -134,9 +141,13 @@ const openModal = function (e) {
     displayWorksInModal(allWorks);
 };
 
+let backButtonAdded = false;
+// Fonction pour ouvrir la deuxième modale
 // Fonction pour ouvrir la deuxième modale
 const openSecondModal = function (e) {
     modal = document.querySelector('#modal2');
+    if (!modal) return; // Vérifier si la modal a été trouvée
+
     focusables = Array.from(modal.querySelectorAll(focusableSelector));
     previouslyFocusedElement = document.querySelector(':focus');
     modal.style.display = null;
@@ -145,18 +156,30 @@ const openSecondModal = function (e) {
     modal.setAttribute('aria-modal', true);
     modal.addEventListener('click', closeModal);
 
-
     const form = modal.querySelector('#add-work-form');
     form.addEventListener('submit', addWork);
 
+    // Créer le bouton de retour avec le logo de FontAwesome
+    if (!backButtonAdded) { // Vérifier si le bouton de retour n'a pas déjà été ajouté
+        const backIcon = document.createElement("i");
+        backIcon.classList.add("fas", "fa-arrow-left"); // Ajoutez les classes FontAwesome pour l'icône de retour
 
-    const backIcon = document.createElement("i");
-    backIcon.classList.add("fas", "fa-arrow-left"); // Ajoutez les classes FontAwesome pour l'icône de fermeture
-
-    const backButton = document.createElement("button");
-    backButton.classList.add("js-modal-back");
-    backButton.appendChild(backIcon);
-    backButton.addEventListener("click", openModal);
+        const backButton = document.createElement("button");
+        backButton.classList.add("js-modal-back");
+        backButton.appendChild(backIcon);
+        backButton.addEventListener("click", () => {
+            closeModal();
+            firstModal.style.display = null;
+            firstModal.removeAttribute('aria-hidden');
+            firstModal.setAttribute('aria-modal', true);
+            focusables = Array.from(firstModal.querySelectorAll(focusableSelector));
+            previouslyFocusedElement = document.querySelector(':focus');
+            focusables[0].focus();
+            firstModal.addEventListener('click', closeModal);
+        });
+        modal.querySelector('.modal-wrapper').prepend(backButton); // Ajouter le bouton de retour au début de la modal
+        backButtonAdded = true; // Marquer le bouton de retour comme déjà ajouté
+    }
 
     // Créer le bouton de fermeture avec le logo de FontAwesome
     const closeIcon = document.createElement("i");
@@ -166,18 +189,24 @@ const openSecondModal = function (e) {
     closeButton.classList.add("js-modal-close");
     closeButton.appendChild(closeIcon);
     closeButton.addEventListener('click', closeModal);
-
-    modal.querySelector('.js-modal-close').remove(); // Supprimer l'ancien bouton de fermeture
+    modal.querySelector('.js-modal-close')?.remove(); // Supprimer l'ancien bouton de fermeture s'il existe
     modal.querySelector('.modal-wrapper').prepend(closeButton); // Ajouter le bouton de fermeture au début de la modal
-    modal.querySelector('.modal-wrapper').prepend(backButton); // Ajouter le bouton de retour au début de la modal
+
     modal.querySelector('.js-modal-stop').addEventListener('click', stopPropagation);
 };
 
+const backIcon = document.createElement("i");
+backIcon.classList.add("fas", "fa-arrow-left"); // Ajoutez les classes FontAwesome pour l'icône de retour
+
+const backButton = document.createElement("button");
+backButton.classList.add("js-modal-back");
+backButton.appendChild(backIcon);
+backButton.addEventListener("click", openModal);
+
 // Fonction pour fermer la modale
-const closeModal = function (e) {
+const closeModal = function () {
     if (modal === null) return;
     if (previouslyFocusedElement !== null) previouslyFocusedElement.focus();
-    e.preventDefault();
 
     if (modal.id === "modal2") {
         modal.style.display = "none";
@@ -286,9 +315,8 @@ function deleteWork(workId) {
     })
         .then(response => {
             if (response.ok) {
-                // Le travail a été supprimé avec succès
                 loadWorks();
-                window.location.href = 'index.html';
+                closeModal();
 
             } else {
                 console.log('Erreur lors de la suppression du travail.');
@@ -329,11 +357,11 @@ function addWork(e) {
         .then(response => response.json())
         .then(result => {
             // Le travail a été ajouté avec succès
-            closeModal(e);
+            closeModal();
             loadWorks();
             allWorks.unshift(result);
             works(allWorks);
-            window.location.href = 'index.html';
+            closeModal();
             resetAddWorkForm();
         })
         .catch(error => console.log('error', error));
@@ -354,6 +382,7 @@ function resetAddWorkForm() {
 }
 
 // Modale
+
 
 
 // Récupération du token depuis le stockage local
