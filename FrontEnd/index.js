@@ -145,6 +145,7 @@ const openSecondModal = function (e) {
     modal.setAttribute('aria-modal', true);
     modal.addEventListener('click', closeModal);
 
+
     const form = modal.querySelector('#add-work-form');
     form.addEventListener('submit', addWork);
 
@@ -286,7 +287,9 @@ function deleteWork(workId) {
         .then(response => {
             if (response.ok) {
                 // Le travail a été supprimé avec succès
-                loadWorks(); // Recharger les travaux pour mettre à jour la galerie
+                loadWorks();
+                window.location.href = 'index.html';
+
             } else {
                 console.log('Erreur lors de la suppression du travail.');
             }
@@ -326,8 +329,11 @@ function addWork(e) {
         .then(response => response.json())
         .then(result => {
             // Le travail a été ajouté avec succès
-            closeModal(e); // Fermer la modale
-            loadWorks(); // Recharger les travaux pour afficher le nouveau travail dans la galerie
+            closeModal(e);
+            loadWorks();
+            allWorks.unshift(result);
+            works(allWorks);
+            window.location.href = 'index.html';
         })
         .catch(error => console.log('error', error));
 }
@@ -384,6 +390,27 @@ if (token) {
     logoEdit.style.display = 'none';
     logoEdit2.style.display = 'none';
 }
+
+
+
+document.getElementById("work-image").addEventListener("change", function(event) {
+    let file = event.target.files[0];
+
+    if (file) {
+        let reader = new FileReader();
+
+        reader.onload = function() {
+            let previewImage = document.getElementById("preview-image");
+            previewImage.src = reader.result;
+            previewImage.style.display = "block";
+
+        };
+
+        reader.readAsDataURL(file);
+    }
+});
+
+
 
 
 

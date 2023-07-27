@@ -79,12 +79,19 @@
 		<div class="modal-wrapper js-modal-stop">
 			<button class="js-modal-close">close</button>
 			<h1 id="titlemodal2">Ajout photo</h1>
-			<label for="work-image" class="custom-file-upload">
-				<div class="file-upload-icon">
-					<i class="fa-regular fa-image"></i> <!-- Remplacez "fas fa-image" par la classe FontAwesome correspondant à votre logo d'image par défaut -->
-				</div>
-				<div class="file-upload-text">+ Ajouter Photo</div>
-			</label>
+			<div class="custom-file-upload">
+				<img id="preview-image" src="#" alt="Aperçu de l'image" style="display: none">
+				<label for="work-image">
+					<input type="file" id="work-image" accept="image/*">
+					<div class="file-upload-icon">
+						<i class="fa-regular fa-image"></i>
+					</div>
+					<div class="file-upload-text">+ Ajouter Photo</div>
+				</label>
+			</div>
+
+
+
 			<input type="file" id="work-image" name="work-image" accept="image/*" required>
 
 			<form id="add-work-form">
@@ -98,7 +105,7 @@
 					</select>
 				</div>
 				<div class="line2"></div>
-				<button type="submit">Valider</button>
+				<button id="submit-button" type="submit">Valider</button>
 			</form>
 		</div>
 	</aside>
