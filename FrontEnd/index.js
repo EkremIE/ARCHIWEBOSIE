@@ -334,8 +334,23 @@ function addWork(e) {
             allWorks.unshift(result);
             works(allWorks);
             window.location.href = 'index.html';
+            resetAddWorkForm();
         })
         .catch(error => console.log('error', error));
+}
+
+function resetAddWorkForm() {
+    const workTitleInput = document.getElementById('work-title');
+    const workCategoryInput = document.getElementById('work-category');
+    const workImageInput = document.getElementById('work-image');
+    const previewImage = document.getElementById('preview-image');
+
+    workTitleInput.value = '';
+    workCategoryInput.value = '';
+    workImageInput.value = '';
+
+    previewImage.src = '';
+    previewImage.style.display = 'none';
 }
 
 // Modale

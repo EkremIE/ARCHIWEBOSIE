@@ -108,6 +108,8 @@ li:hover {
 #introduction {
 	display: flex;
 	align-items: center;
+	margin-left: 145px;
+	margin-right: 145px;
 }
 
 #introduction figure {
@@ -137,11 +139,13 @@ li:hover {
 }
 
 .gallery {
-	width: 100%;
 	display: grid;
 	grid-template-columns: 1fr 1fr 1fr;
 	grid-column-gap: 20px;
 	grid-row-gap: 20px;
+	justify-items: center;
+	margin-left: 200px;
+	margin-right: 200px;
 }
 
 .gallery img {
